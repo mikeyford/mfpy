@@ -1,2 +1,2 @@
-# toolz
+# mytools
 useful functions I wrote
