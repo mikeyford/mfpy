@@ -30,8 +30,8 @@ def offset_from_first_event(group, date_col, event_col, event, period, find):
     "Helper function for event_delta()"
     def return_offset_date(loc):
         return (group[group[event_col] == event][date_col]
-                      .iloc[loc]
-                      .to_period(period))
+                                                .iloc[loc]
+                                                .to_period(period))
     
     group = group.sort_values(date_col)
     if event in group[event_col].values:
@@ -69,5 +69,5 @@ def event_delta(df, groupby_col, date_col, event_col, event=True, period='D', fi
                                   period=period,
                                   find=find)
     return (df.groupby(groupby_col)
-               .apply(partial_offset_func)
-               .copy())
+              .apply(partial_offset_func)
+              .copy())
