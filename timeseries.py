@@ -19,7 +19,9 @@ def sample_id_hists(df, id_col, additional_sort_col=None, sort=True, **kwargs):
     if additional_sort_col is not None:
         sorts.append(additional_sort_col)
     if sort:
-        return df[df[id_col].isin(ids.sample(**kwargs))].sort_values(by=sorts).copy()
+        return (df[df[id_col].isin(ids.sample(**kwargs))]
+                             .sort_values(by=sorts)
+                             .copy())
     else:
         return df[df[id_col].isin(ids.sample(**kwargs))].copy()
 
@@ -66,4 +68,6 @@ def event_delta(df, groupby_col, date_col, event_col, event=True, period='D', fi
                                   event=event, 
                                   period=period,
                                   find=find)
-    return df.groupby(groupby_col).apply(partial_offset_func).copy()
+    return (df.groupby(groupby_col)
+               .apply(partial_offset_func)
+               .copy())
