@@ -2,29 +2,41 @@ import pandas as pd
 import numpy as np
 from functools import partial
 
-def sample_id_hists(df, id_col, additional_sort_col=None, sort=True, **kwargs):         
+def sample_id_hists(df, id_col, additional_sort_col=None, sort=True, **kwargs):
+    """
+    Returns subset of pandas dataframe containing complete histories for sample of ids.
+    
+    Args:
+        df: pandas dataframe
+        id_col: name of column containing ids
+        additional_sort_col: name of additional column to use to sort after ids, e.g. 'date'
+        sort: boolean, if the results should be sorted by id and additional_sort_col
+        kwargs: arguments of pd.Series.sample() to use for sampling ids e.g. frac=0.1, n=1 
+        """
+    
     ids = pd.Series(df[id_col].unique())
     sorts = [id_col]
     if additional_sort_col is not None:
         sorts.append(additional_sort_col)
     if sort:
-        df = df[df[id_col].isin(ids.sample(**kwargs))].sort_values(by=sorts)
+        return df[df[id_col].isin(ids.sample(**kwargs))].sort_values(by=sorts).copy()
     else:
-        df = df[df[id_col].isin(ids.sample(**kwargs))]
-    return df
+        return df[df[id_col].isin(ids.sample(**kwargs))].copy()
 
 
 def offset_from_first_event(group, date_col, event_col, event, period, find):
+    "Helper function for event_delta()"
+    def return_offset_date(loc):
+        return (group[group[event_col] == event][date_col]
+                      .iloc[loc]
+                      .to_period(period))
+    
     group = group.sort_values(date_col)
     if event in group[event_col].values:
         if find == 'first':
-            event_date_to_offset = (group[group[event_col] == event][date_col]
-                                    .iloc[0]
-                                    .to_period(period))
+            event_date_to_offset = return_offset_date(0)
         if find == 'last':
-            event_date_to_offset = (group[group[event_col] == event][date_col]
-                                    .iloc[-1]
-                                    .to_period(period))
+            event_date_to_offset = return_offset_date(-1)
         group[event_col+'_delta'] = group[date_col].dt.to_period(period) - event_date_to_offset
     else:
         group[event_col+'_delta'] = np.NaN
@@ -35,20 +47,18 @@ def event_delta(df, groupby_col, date_col, event_col, event=True, period='D', fi
     """
     Returns pandas dataframe with new column containing offset from first event for each group.
     
-    Arguments:
-        df = pandas dataframe
-        groupby_col = name of column to use for groups e.g. 'id'
-        date_col = name of column containing time for offset
-        event_col = name of column containing events of interest
-        event = type of cell contents to look for, default is True
-        period = string for pd.Series.dt offset alias, e.g. 'M' for months, 'D' for calendar days
-        find = 'first' or 'last' to return offset from first or last occurence of event respectively
+    Args:
+        df: pandas dataframe
+        groupby_col: name of column to use for groups e.g. 'id'
+        date_col: name of column containing time for offset
+        event_col: name of column containing events of interest
+        event: type of cell contents to look for, default is True
+        period: string for pd.Series.dt offset alias, e.g. 'M' for months, 'D' for calendar days
+        find: 'first' or 'last' to return offset from first or last occurence of event respectively
         """
     
     if event not in df[event_col].values:
-        raise ValueError('No records contain event, will return NaN for every row.')    
-    if find not in ['first', 'last']:
-        raise ValueError("find argument should be either 'first' or 'last'")       
+        raise ValueError('No records contain event, will return NaN for every row.')        
     
     partial_offset_func = partial(offset_from_first_event,
                                   date_col=date_col, 
