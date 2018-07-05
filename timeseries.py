@@ -14,7 +14,7 @@ def sample_id_hists(df, id_col, additional_sort_col=None, sort=True, **kwargs):
         kwargs: arguments of pd.Series.sample() to use for sampling ids e.g. frac=0.1, n=1
         
     Returns:
-        subset of rows from df
+        dataframe containing subset of rows from df
         """
     
     ids = pd.Series(df[id_col].unique())
