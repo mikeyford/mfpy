@@ -1,0 +1,33 @@
+axes.titlesize : 18
+lines.linewidth : 1
+
+axes.spines.bottom : True
+axes.spines.left : True
+axes.spines.right : False
+axes.spines.top : False
+
+axes.xmargin : 0
+axes.ymargin : 0
+
+legend.frameon : False
+
+text.color : dimgrey
+axes.edgecolor : dimgrey
+xtick.color: dimgrey
+ytick.color: dimgrey
+
+axes.prop_cycle : cycler('color', ['dodgerblue', 'coral' , 'c', 'indianred', 'darkslateblue', 'gold'])
+
+font.family : System Font
+
+
+
+
+
+
+
+
+
+
+
+
